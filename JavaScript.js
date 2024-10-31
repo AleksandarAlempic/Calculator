@@ -1,7 +1,7 @@
 
 
-let number1 = document.getElementById("button1").innerHTML;
-let number2 = document.getElementById("button2").innerHTML;
+let number1 = document.getElementById("button1");
+let number2 = document.getElementById("button2");
 let number3 = document.getElementById("button3");
 let number4 = document.getElementById("button4");
 let number5 = document.getElementById("button5");
@@ -15,318 +15,267 @@ let minusButton = document.getElementById("buttonMinus");
 let multipleButton = document.getElementById("buttonMultiple");
 let buttonDiv = document.getElementById("buttonDiv");
 
-let numberInMonitor = "";
-let numberForOperations;
 
-let firstNumber = "";
-let SecondNumber = "";
+let state = {
+    firstNumber: "",
+    secondNumber: "",
+    operation: null, // 'plus', 'minus', 'multiply', 'divide', 'sqrt'
+    numberInMonitor: "",
+    fullstopTriggered: false,
+    equalTriggered: false
+    };
 
-let minusTriggered = false;
-let plusTriggered = false;
-let multipleTriggered = false; 
-let divTriggered = false;
-let fullstopTriggered = false;
-let sqrtTriggered = false;
-
-function clearMonitor(){
-    document.getElementById("Monitor").value = "";
-    numberInMonitor = "";
-    minusTriggered = false;
-    plusTriggered = false;
-    multipleTriggered = false; 
-    divTriggered = false;
-    fullstopTriggered = false;
-    sqrtTriggered = false;
-}
-
-function getNumberFromCalculator(number){
-          if(numberInMonitor === ""){
-           if(!minusTriggered & !plusTriggered & !multipleTriggered & !divTriggered){
-            if(fullstopTriggered){
-                numberInMonitor = numberInMonitor +  number;
-                firstNumber = numberInMonitor;
-            }
-            else{
-                numberInMonitor = number;
-                firstNumber = number;
-            }
-              
-           }
-           else{
-            if(fullstopTriggered){
-                SecondNumber = "0." + number;
-            }
-            else{
-                SecondNumber = number; 
-            }
-                
-                if(minusTriggered){
-                    document.getElementById("Monitor").value = firstNumber + " - " + SecondNumber;
-                }
-                else if (plusTriggered){
-                    document.getElementById("Monitor").value = firstNumber + " + " + SecondNumber;
-                }
-                else if (multipleTriggered){
-                    document.getElementById("Monitor").value = firstNumber + " * " + SecondNumber;
-                }
-                else if (divTriggered){
-                    document.getElementById("Monitor").value = firstNumber + " : " + SecondNumber;
-                }
-                else {
-                    document.getElementById("Monitor").value = firstNumber + " - " + SecondNumber;
-                }
-               
-           }
+    function clearMonitor() {
+        document.getElementById("Monitor").value = "";
+        state = {
+        firstNumber: "",
+        secondNumber: "",
+        operation: null,
+        numberInMonitor: "",
+        fullstopTriggered: false,
+        equalTriggered: false,
+        };
         }
-        else {
-            if(fullstopTriggered){
-                numberInMonitor = numberInMonitor + number;
-                firstNumber = numberInMonitor;
-            }
-            else{
-                firstNumber = number;
-            }
-            firstNumber = parseFloat(numberInMonitor);
+
+function getNumberFromCalculator(number) {
+    if (state.operation === null & state.secondNumber === "") {
+    // Ako operacija još nije postavljena, korisnik unosi prvi broj.
+        if (state.fullstopTriggered) {
+            // Ako je aktivirana decimalna tačka, dodaj broj na kraj trenutnog unosa.
+            state.numberInMonitor = state.firstNumber + '.' +  number;
+            document.getElementById("Monitor").value = state.numberInMonitor;
+        } else {
+            // Ako nije, ili se dodaje broj na prazan string (prvi unos), 
+            // ili dodajemo broj na već postojeći string (npr. "12" postaje "123").
+            state.numberInMonitor = state.firstNumber === "" ? number : state.firstNumber + '' + number;
+            state.firstNumber = state.firstNumber + '' + number;
+            document.getElementById("Monitor").value = state.numberInMonitor;
+        }
+        // Nakon unosa, prvi broj uvek treba da bude numerička vrednost, pa ga parsiramo.
+        state.firstNumber = parseFloat(state.numberInMonitor);
+        document.getElementById("Monitor").value = state.numberInMonitor;
+    } else {
+        // Ako je operacija već postavljena, korisnik unosi drugi broj.
         
-            if(!minusTriggered & !plusTriggered & !multipleTriggered & !divTriggered){
-                if(fullstopTriggered){
-                    numberInMonitor = numberInMonitor;
-                    firstNumber = parseFloat(firstNumber); 
-                }
-                else{
-                    numberInMonitor = firstNumber + "" + number; 
-                    firstNumber = parseFloat(firstNumber + "" + number); 
-                }
-             
-            }
-            else if (minusTriggered){
-                if(fullstopTriggered){
-                    SecondNumber = SecondNumber + "."+ number;
-                    SecondNumber = parseFloat(SecondNumber + "." + number); 
-                }
-                else{
-                    SecondNumber = parseFloat(SecondNumber + "" + number); 
-                }
-              
-                 numberInMonitor = firstNumber + " - " + SecondNumber;
-                 document.getElementById("Monitor").value = firstNumber + " - " + SecondNumber;
-            }
-            else if (plusTriggered){
-                if(fullstopTriggered){
-                    SecondNumber = SecondNumber + "."+ number;
-                    SecondNumber = parseFloat(SecondNumber + "." + number); 
-                }
-                else{
-                    SecondNumber = parseFloat(SecondNumber + "" + number); 
-                }
-            
-                numberInMonitor = firstNumber + " + " + SecondNumber;
-                document.getElementById("Monitor").value = firstNumber + " + " + SecondNumber;
-           }
-           else if (multipleTriggered){
+        if (state.fullstopTriggered) {
+            // Ako je aktivirana decimalna tačka, dodajemo tačku pre novog broja.
+            state.secondNumber = state.secondNumber + "" + number;
+        } else {
+            // Ako nije, proveravamo da li je drugi broj prazan. Ako jeste, unosimo novi broj,
+            // a ako nije, dodajemo ga na postojeći broj (npr. "45" postaje "456").
+            state.secondNumber = state.secondNumber === "" ? number : state.secondNumber + "" + number;
+        }
+        state.secondNumber = parseFloat(state.secondNumber);
+        // Ažuriramo sadržaj monitora, prikazujući prvi broj, operaciju i drugi broj.
+        state.numberInMonitor = state.firstNumber + " " + getOperationSymbol() + " " + state.secondNumber;
+        document.getElementById("Monitor").value = state.numberInMonitor;
+    }
+    }
+    
+    function getOperationSymbol() {
+    switch (state.operation) {
+    case 'plus': return "+";
+    case 'minus': return "-";
+    case 'multiply': return "*";
+    case 'fullstop': return state.operation;
+    case 'divide': return ":";
+    default: return ""; // Ako nije postavljena nijedna operacija, vraća prazan string.
+    }
+    }
 
-            if(fullstopTriggered){
-                SecondNumber = SecondNumber + "."+ number;
-                SecondNumber = parseFloat(SecondNumber + "." + number); 
-            }
-            else{
-                SecondNumber = parseFloat(SecondNumber + "" + number); 
-            }
-
-          
-            numberInMonitor = firstNumber + " * " + SecondNumber;
-            document.getElementById("Monitor").value = firstNumber + " * " + SecondNumber;
-       }
-       else if (divTriggered){
-        if(fullstopTriggered){
-            SecondNumber = SecondNumber + "."+ number;
-            SecondNumber = parseFloat(SecondNumber + "." + number); 
-        }
-        else{
-            SecondNumber = parseFloat(SecondNumber + "" + number); 
-        }
-        numberInMonitor = firstNumber + " : " + SecondNumber;
-        document.getElementById("Monitor").value = firstNumber + " : " + SecondNumber;
-   }
-           else {
-            SecondNumber = parseFloat(SecondNumber + "" + number); 
-            numberInMonitor = firstNumber + " - " + SecondNumber;
-            document.getElementById("Monitor").value = firstNumber + " - " + SecondNumber;
-       }
-            
-        }
-        document.getElementById("Monitor").value = numberInMonitor;
-}
 
 function minusFunction() {
      
-    minusTriggered = true;
-    plusTriggered = false;
-    multipleTriggered = false;
-    divTriggered = false;
-    sqrtTriggered = false;
-    fullstopTriggered = false;
+    state.operation = 'minus';
+    state.fullstopTriggered = false;
 
-     if(firstNumber === ""){
-        document.getElementById("Monitor").value = numberInMonitor + " - ";
+     if(state.firstNumber === "" & !state.equalTriggered){
+        document.getElementById("Monitor").value = state.numberInMonitor + " - ";
+     }
+     else if (state.secondNumber != ""){
+        state.numberInMonitor = parseFloat(state.numberInMonitor) - state.secondNumber;
+        document.getElementById("Monitor").value = state.numberInMonitor + " -";
+        state.firstNumber = state.numberInMonitor;
+        state.secondNumber = "";
+     }
+     
+     else if (state.equalTriggered){
+        state.firstNumber = state.numberInMonitor;
+        document.getElementById("Monitor").value = state.numberInMonitor + " - ";
      }
      else{
-        
-        document.getElementById("Monitor").value = firstNumber + " - ";
+        document.getElementById("Monitor").value = state.firstNumber + " - ";
      }    
 }
 
 function plusFunction11() {
 
-    if(plusTriggered){
-        numberInMonitor = firstNumber + " + " + SecondNumber + " + ";
-        document.getElementById("Monitor").value = firstNumber + " + " + SecondNumber  + " + ";;
-    }
-     
-    plusTriggered = true;
-    minusTriggered = false;
-    multipleTriggered = false;
-    divTriggered = false;
-    sqrtTriggered = false;
-    fullstopTriggered = false;
-
-     if(firstNumber === ""){
-        document.getElementById("Monitor").value = numberInMonitor + " + ";
+    state.operation = 'plus';
+    state.fullstopTriggered = false;
+  
+     if(state.firstNumber === "" & !state.equalTriggered){
+        document.getElementById("Monitor").value = state.numberInMonitor + " + ";
+     }
+     else if (state.secondNumber != ""){
+        state.numberInMonitor = parseFloat(state.numberInMonitor) + state.secondNumber;
+        document.getElementById("Monitor").value = state.numberInMonitor + " +";
+        state.firstNumber = state.numberInMonitor;
+        state.secondNumber = "";
+     }
+     else if (state.equalTriggered){
+        state.firstNumber = state.numberInMonitor;
+        document.getElementById("Monitor").value = state.numberInMonitor + " + ";
      }
      else{
-        document.getElementById("Monitor").value = firstNumber + " + ";
+        document.getElementById("Monitor").value = state.firstNumber + " + ";
      }
 }
 
+// state.numberInMonitor = parseFloat(numberInMonitor) + state.secondNumber;
+//         document.getElementById("Monitor").value = state.numberInMonitor;
+
 function multiple(){
 
-    multipleTriggered = true;
-    plusTriggered = false;
-    minusTriggered = false;
-    divTriggered = false;
-    sqrtTriggered = false;
-    fullstopTriggered = false;
+    state.operation = 'multiply';
+    state.fullstopTriggered = false;
     
-     if(firstNumber === ""){
-        document.getElementById("Monitor").value = numberInMonitor + " * ";
+     if(state.firstNumber === "" & !state.equalTriggered){
+        document.getElementById("Monitor").value = state.numberInMonitor + " * ";
+     }
+     else if (state.secondNumber != ""){
+        state.numberInMonitor = parseFloat(state.numberInMonitor) * state.secondNumber;
+        document.getElementById("Monitor").value = state.numberInMonitor + " *";
+        state.firstNumber = state.numberInMonitor;
+        state.secondNumber = "";
+     }
+     else if (state.equalTriggered){
+        state.firstNumber = state.numberInMonitor;
+        document.getElementById("Monitor").value = state.numberInMonitor + " * ";
      }
      else{
-        document.getElementById("Monitor").value = firstNumber + " * ";
+        document.getElementById("Monitor").value = state.firstNumber + " * ";
      }
 }
 
 function divide(){
 
-    divTriggered = true;
-    multipleTriggered = false;
-    plusTriggered = false;
-    minusTriggered = false;
-    sqrtTriggered = false;
-    fullstopTriggered = false;
+    state.operation = 'divide';
+    state.fullstopTriggered = false;
     
-     if(firstNumber === ""){
-        document.getElementById("Monitor").value = numberInMonitor + " : ";
+     if(state.firstNumber === "" & !state.equalTriggered){
+        document.getElementById("Monitor").value = state.numberInMonitor + " : ";
      }
+     else if (state.equalTriggered){
+        state.firstNumber = state.numberInMonitor;
+        document.getElementById("Monitor").value = state.numberInMonitor + " : ";
+     }
+     else if (state.secondNumber != ""){
+        state.numberInMonitor = parseFloat(state.numberInMonitor) / state.secondNumber;
+        document.getElementById("Monitor").value = state.numberInMonitor + " :";
+        state.firstNumber = state.numberInMonitor;
+        state.secondNumber = "";
+     }
+  
      else{
-        document.getElementById("Monitor").value = firstNumber + " : ";
+        document.getElementById("Monitor").value = state.numberInMonitor + " : ";
      }
 }
 
 function sqrt(){
-    sqrtTriggered = true;
-    divTriggered = false;
-    multipleTriggered = false;
-    plusTriggered = false;
-    minusTriggered = false;
-    fullstopTriggered = false;
 
-    if (numberInMonitor === ""){
-        numberInMonitor = 0;
-        document.getElementById("Monitor").value = numberInMonitor;
+    state.operation = 'sqrt';
+    state.fullstopTriggered = false;
+
+    if (state.numberInMonitor === ""){
+        state.numberInMonitor = 0;
+        document.getElementById("Monitor").value = state.numberInMonitor;
     }
     else{
-        numberInMonitor = Math.sqrt(numberInMonitor);
-        document.getElementById("Monitor").value =  numberInMonitor;
+        state.numberInMonitor = Math.sqrt(state.numberInMonitor);
+        document.getElementById("Monitor").value =  state.numberInMonitor;
     }
 
 }
 
 function fullStop(){
-    fullstopTriggered = true;
+
+    state.fullstopTriggered = true;
    
-     if(firstNumber === ""|| numberInMonitor === ""){
+     if(state.firstNumber === ""|| state.numberInMonitor === ""){
         document.getElementById("Monitor").value = "0.";
-        numberInMonitor = "0.";
-        firstNumber = numberInMonitor;
+        state.numberInMonitor = "0.";
+        state.firstNumber = state.numberInMonitor;
      }
-     else if(SecondNumber != "" || SecondNumber === 0){
-        numberInMonitor = numberInMonitor +  ".";
-        document.getElementById("Monitor").value =  numberInMonitor;
+     else if(state.secondNumber != "" || state.secondNumber === 0){
+        state.numberInMonitor = state.numberInMonitor +  ".";
+        state.secondNumber = state.secondNumber +  ".";
+        document.getElementById("Monitor").value =  state.numberInMonitor;
      }
      else {
-        numberInMonitor = numberInMonitor + ".";
-        document.getElementById("Monitor").value =  firstNumber + ".";
+        state.numberInMonitor = state.numberInMonitor + ".";
+        document.getElementById("Monitor").value =  state.firstNumber + ".";
      }
 }
 
 
 function testFunction(){ // If I leave a EqualFunction as name and make onClick with this name nothing happens - Same problem is with Plus() - I changed to PlusFunction11() - then it's triggered.
-    document.getElementById("Monitor").value = numberInMonitor;
-    if(minusTriggered){
-        if(firstNumber === ""){
-            numberInMonitor = parseFloat(numberInMonitor) - SecondNumber;
-            document.getElementById("Monitor").value = numberInMonitor
+    state.equalTriggered = true;
+    document.getElementById("Monitor").value = state.numberInMonitor;
+    if(state.operation === "minus"){
+        if(state.firstNumber === ""){
+            state.numberInMonitor = parseFloat(numberInMonitor) - state.secondNumber;
+            document.getElementById("Monitor").value = state.numberInMonitor
         }
         else{
-            numberInMonitor = firstNumber - SecondNumber;
-            document.getElementById("Monitor").value = numberInMonitor;
-            firstNumber = "";
-            SecondNumber = "";
-            minusTriggered = false;
+            state.numberInMonitor = state.firstNumber - state.secondNumber;
+            document.getElementById("Monitor").value = state.numberInMonitor;
+            state.firstNumber = "";
+            state.secondNumber = "";
+            // minusTriggered = false;
         } 
     }
-    else if (plusTriggered){
-        if(firstNumber === ""){
-            numberInMonitor = parseFloat(numberInMonitor) + SecondNumber;
-            document.getElementById("Monitor").value = numberInMonitor
+    else if (state.operation === "plus"){
+        if(state.firstNumber === ""){
+            state.numberInMonitor = parseFloat(numberInMonitor) + state.secondNumber;
+            document.getElementById("Monitor").value = state.numberInMonitor
         }
         else{
-            numberInMonitor = firstNumber + SecondNumber;
-            document.getElementById("Monitor").value = numberInMonitor;
-            firstNumber = "";
-            SecondNumber = "";
-            plusTriggered = false;
+            state.numberInMonitor = state.firstNumber + state.secondNumber;
+            document.getElementById("Monitor").value = state.numberInMonitor;
+            state.firstNumber = "";
+            state.secondNumber = "";
+            // plusTriggered = false;
         } 
     }
-    else if (multipleTriggered){
-        if(firstNumber === ""){
-            numberInMonitor = parseFloat(numberInMonitor) + SecondNumber;
-            document.getElementById("Monitor").value = numberInMonitor
+    else if (state.operation === "multiply"){
+        if(state.firstNumber === ""){
+            state.numberInMonitor = parseFloat(numberInMonitor) + state.SecondNumber;
+            document.getElementById("Monitor").value = state.numberInMonitor
         }
         else{
-            numberInMonitor = firstNumber * SecondNumber;
-            document.getElementById("Monitor").value = numberInMonitor;
-            firstNumber = "";
-            SecondNumber = "";
-            plusTriggered = false;
+            state.numberInMonitor = state.firstNumber * state.secondNumber;
+            document.getElementById("Monitor").value = state.numberInMonitor;
+            state.firstNumber = "";
+            state.secondNumber = "";
+            // plusTriggered = false;
         } 
     }
-    else if (divTriggered){
-        if(firstNumber === ""){
-            numberInMonitor = parseInt(numberInMonitor) + SecondNumber;
-            document.getElementById("Monitor").value = numberInMonitor
+    else if (state.operation === "divide"){
+        if(state.firstNumber === ""){
+            state.numberInMonitor = parseInt(numberInMonitor) + state.secondNumber;
+            document.getElementById("Monitor").value = state.numberInMonitor
         }
         else{
-            numberInMonitor = firstNumber / SecondNumber;
-            document.getElementById("Monitor").value = numberInMonitor;
-            firstNumber = "";
-            SecondNumber = "";
-            plusTriggered = false;
+            state.numberInMonitor = state.firstNumber / state.secondNumber;
+            document.getElementById("Monitor").value = state.numberInMonitor;
+            state.firstNumber = "";
+            state.secondNumber = "";
+            // plusTriggered = false;
         } 
     }
     else{
 
     }
-
+    document.getElementById("Monitor").value = state.numberInMonitor;
 }
 
