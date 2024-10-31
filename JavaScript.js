@@ -35,15 +35,23 @@ let state = {
         fullstopTriggered: false,
         equalTriggered: false,
         };
-        }
+    }
 
 function getNumberFromCalculator(number) {
     if (state.operation === null & state.secondNumber === "") {
     // Ako operacija još nije postavljena, korisnik unosi prvi broj.
         if (state.fullstopTriggered) {
             // Ako je aktivirana decimalna tačka, dodaj broj na kraj trenutnog unosa.
-            state.numberInMonitor = state.firstNumber + '.' +  number;
-            document.getElementById("Monitor").value = state.numberInMonitor;
+
+            if(state.numberInMonitor.includes(".")){
+                state.numberInMonitor = state.numberInMonitor +  number;
+                document.getElementById("Monitor").value = state.numberInMonitor;
+            }
+            else{
+                state.numberInMonitor = state.firstNumber + '.' +  number;
+                document.getElementById("Monitor").value = state.numberInMonitor;
+            }
+         
         } else {
             // Ako nije, ili se dodaje broj na prazan string (prvi unos), 
             // ili dodajemo broj na već postojeći string (npr. "12" postaje "123").
@@ -58,6 +66,7 @@ function getNumberFromCalculator(number) {
         // Ako je operacija već postavljena, korisnik unosi drugi broj.
         
         if (state.fullstopTriggered) {
+          
             // Ako je aktivirana decimalna tačka, dodajemo tačku pre novog broja.
             state.secondNumber = state.secondNumber + "" + number;
         } else {
@@ -92,6 +101,7 @@ function minusFunction() {
      if(state.firstNumber === "" & !state.equalTriggered){
         document.getElementById("Monitor").value = state.numberInMonitor + " - ";
      }
+
      else if (state.secondNumber != ""){
         state.numberInMonitor = parseFloat(state.numberInMonitor) - state.secondNumber;
         document.getElementById("Monitor").value = state.numberInMonitor + " -";
