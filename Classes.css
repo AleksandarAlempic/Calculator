@@ -1,0 +1,62 @@
+
+
+.classicButton{
+    width: 100%;
+    background: #D0D0D0;
+}
+
+.backroundbody{
+    background: #3C4853;
+}
+
+.calculatorMonitor{
+    width: 133%;
+    height: 50px;
+    border-radius: 4.5%;
+    margin-top: 2%;
+    text-align: center;
+}
+
+.tableClass{
+    margin-left: 40%; 
+    border: 1px solid;
+}
+
+.classForC{
+    border: 1px solid; width: 75.95%
+}
+
+.classForCButton{
+    background: red; width: 100%;
+    width: 100%;
+}
+
+.tdForDebaultButtons{
+    width:10.95%;
+   
+}
+
+.plusMinusEqualButton{
+    width: 11.1%;
+}
+
+.content {
+    margin-left:40%;
+    margin-top: 1.5%;
+    width: 240px;
+    height: 220px;
+    border-radius: 10px;
+    background-color: orange;
+    box-shadow: 15px 15px 19px rgba(163, 166, 198, 0.848), -15px -15px 19px rgba(163, 198, 191, 0.414);
+
+}
+
+.contentH1{
+    margin-top: 13%;
+    margin-left:42.5%;
+    color: orange;
+}
+
+
+
+/*  */
